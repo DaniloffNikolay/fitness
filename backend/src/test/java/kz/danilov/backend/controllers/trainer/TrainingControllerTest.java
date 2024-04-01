@@ -108,11 +108,11 @@ public class TrainingControllerTest {
     }
 
     private void resetDb() {
-        peopleService.deleteAll();
         trainersService.deleteAll();
+        peopleService.deleteAll();
         exercisesService.deleteAll();
-        tasksService.deleteAll();
         trainingsService.deleteAll();
+        tasksService.deleteAll();
     }
 
     @Test
