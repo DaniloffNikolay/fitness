@@ -53,6 +53,18 @@ public class ModelMapperUtil {
 
         return exerciseDTOList;
     }
+
+    public TrainingDTO convertToTrainingDTO(Training Training){
+       return this.modelMapper.map(Training, TrainingDTO.class);
+    }
+
+    public Training convertToTraining(NewTrainingDTO newTrainingDTO){
+       return this.modelMapper.map(newTrainingDTO, Training.class);
+    }
+
+    public Training convertToTraining(TrainingDTO trainingDTO){
+        return this.modelMapper.map(trainingDTO, Training.class);
+    }
     public List<TrainingDTO> convertToListOfTrainingDTO(List<Training> trainings) {
         List<TrainingDTO> trainingDTOList = new ArrayList<>(trainings.size());
         for(Training training: trainings) {

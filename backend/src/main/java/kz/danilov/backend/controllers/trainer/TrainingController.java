@@ -1,21 +1,25 @@
 package kz.danilov.backend.controllers.trainer;
 
 import kz.danilov.backend.BackendApplication;
+import kz.danilov.backend.dto.trainers.NewTaskDTO;
+import kz.danilov.backend.dto.trainers.NewTrainingDTO;
+import kz.danilov.backend.dto.trainers.TaskDTO;
 import kz.danilov.backend.dto.trainers.TrainingDTO;
 import kz.danilov.backend.models.Person;
+import kz.danilov.backend.models.trainers.Exercise;
+import kz.danilov.backend.models.trainers.Task;
 import kz.danilov.backend.models.trainers.Trainer;
 import kz.danilov.backend.models.trainers.Training;
 import kz.danilov.backend.security.SecurityUtil;
 import kz.danilov.backend.services.trainers.TrainersService;
+import kz.danilov.backend.services.trainers.TrainingsService;
 import kz.danilov.backend.util.ModelMapperUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,10 +32,13 @@ public class TrainingController {
 
     private final ModelMapperUtil modelMapperUtil;
 
+    private final TrainingsService trainingsService;
+
     @Autowired
-    public TrainingController(TrainersService trainersService, ModelMapperUtil modelMapperUtil) {
+    public TrainingController(TrainersService trainersService, ModelMapperUtil modelMapperUtil, TrainingsService trainingsService) {
         this.trainersService = trainersService;
         this.modelMapperUtil = modelMapperUtil;
+        this.trainingsService = trainingsService;
     }
 
     @GetMapping("/all")
@@ -42,6 +49,19 @@ public class TrainingController {
     List<Training> trainings = trainer.getTrainings();
     return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToListOfTrainingDTO(trainings));
 
+    }
+
+    @PostMapping("/new")
+    public ResponseEntity<TrainingDTO> postNewTraining(@RequestBody NewTrainingDTO newTrainingDTO){
+        Person person = SecurityUtil.getPerson();
+        log.info("POST: /trainer/training/new" + "  personId = " + person.getId());
+        Trainer trainer = trainersService.findByPersonId(person.getId());
+
+        Training training = modelMapperUtil.convertToTraining(newTrainingDTO);
+        training.setTrainer(trainer);
+        Training newTraining = trainingsService.save(training);
+
+        return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToTrainingDTO(newTraining));
     }
 
 }

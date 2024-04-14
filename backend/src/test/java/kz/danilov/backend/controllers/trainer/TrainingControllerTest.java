@@ -2,6 +2,8 @@ package kz.danilov.backend.controllers.trainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.danilov.backend.dto.trainers.NewTaskDTO;
+import kz.danilov.backend.dto.trainers.NewTrainingDTO;
+import kz.danilov.backend.dto.trainers.TrainingDTO;
 import kz.danilov.backend.models.Person;
 import kz.danilov.backend.models.trainers.Exercise;
 import kz.danilov.backend.models.trainers.Task;
@@ -130,5 +132,36 @@ public class TrainingControllerTest {
                 .getContentAsString();
 
         assertTrue(data.contains("" + trainings.get(0).getId()));
+    }
+    @Test
+    void postNewTraining() throws Exception{
+        NewTrainingDTO newTrainingDTO = Utils.createTestNewTrainingDTO();
+        postNewTrainingDTOAndCheckIt(newTrainingDTO);
+    }
+
+    private void postNewTrainingDTOAndCheckIt(NewTrainingDTO newTrainingDTO) throws Exception {
+        String data = Utils.postResultActionsWithTokenAndBody(mockMvc,
+                        "/trainer/training/new",
+                        trainerToken,
+                        objectMapper,
+                        newTrainingDTO)
+                .andExpect(status().is(200))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertTrue(data.contains("" + newTrainingDTO.getDescription()));
+
+        boolean result = false;
+        for (Training training : trainingsService.findAll()) {
+            if (training.getName().equals(newTrainingDTO.getName())) {
+                if (training.getTrainer().getId() == trainer.getId()) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        assertTrue(result);
     }
 }

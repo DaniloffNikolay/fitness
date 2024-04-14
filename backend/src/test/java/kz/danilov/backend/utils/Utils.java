@@ -3,10 +3,7 @@ package kz.danilov.backend.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.danilov.backend.dto.PersonDTO;
-import kz.danilov.backend.dto.trainers.ExerciseDTO;
-import kz.danilov.backend.dto.trainers.NewExerciseDTO;
-import kz.danilov.backend.dto.trainers.NewTaskDTO;
-import kz.danilov.backend.dto.trainers.TaskDTO;
+import kz.danilov.backend.dto.trainers.*;
 import kz.danilov.backend.models.Person;
 import kz.danilov.backend.models.trainers.*;
 import kz.danilov.backend.util.ModelMapperUtil;
@@ -176,6 +173,10 @@ public class Utils {
 
     public static NewTaskDTO createTestNewTaskDTO(Exercise exercise) {
         return new NewTaskDTO("тестовый", "неизвестное описание", exercise.getId(), 50, (byte) 1);
+    }
+
+    public static NewTrainingDTO createTestNewTrainingDTO(){
+        return new NewTrainingDTO( "testName", "test");
     }
 
     public static String getOldToken() {
