@@ -44,7 +44,8 @@ public class TrainingController {
     @GetMapping("/all")
     public ResponseEntity<List<TrainingDTO>> getAllTrainings(){
     Person person = SecurityUtil.getPerson();
-        log.info("GET: /trainer/trainings/all  personId = " + person.getId());
+    log.info("GET: /trainer/trainings/all  personId = " + person.getId());
+
     Trainer trainer = trainersService.findByPersonId(person.getId());
     List<Training> trainings = trainer.getTrainings();
     return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToListOfTrainingDTO(trainings));
@@ -62,6 +63,19 @@ public class TrainingController {
         Training newTraining = trainingsService.save(training);
 
         return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToTrainingDTO(newTraining));
+    }
+
+    @PutMapping("/edite")
+    public ResponseEntity<?> putEditeTraining(@RequestBody TrainingDTO trainingDTO) {
+        Person person = SecurityUtil.getPerson();
+        log.info("PUT: /trainer/training/edite" + "  personId = " + person.getId());
+
+        Training training = trainingsService.getById(trainingDTO.getId());
+        training.setName(trainingDTO.getName());
+        training.setDescription(trainingDTO.getDescription());
+        trainingsService.save(training);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
