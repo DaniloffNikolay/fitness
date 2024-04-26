@@ -2,6 +2,9 @@ package kz.danilov.backend.controllers.trainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.danilov.backend.dto.trainers.NewTaskDTO;
+import kz.danilov.backend.dto.trainers.NewTrainingDTO;
+import kz.danilov.backend.dto.trainers.TaskDTO;
+import kz.danilov.backend.dto.trainers.TrainingDTO;
 import kz.danilov.backend.models.Person;
 import kz.danilov.backend.models.trainers.Exercise;
 import kz.danilov.backend.models.trainers.Task;
@@ -116,7 +119,7 @@ public class TrainingControllerTest {
     }
 
     @Test
-    void getAllTasks() throws Exception {
+    void getAllTrainings() throws Exception {
         getListTrainingsThenCheckIt();
     }
 
@@ -130,5 +133,66 @@ public class TrainingControllerTest {
                 .getContentAsString();
 
         assertTrue(data.contains("" + trainings.get(0).getId()));
+    }
+    @Test
+    void postNewTraining() throws Exception{
+        NewTrainingDTO newTrainingDTO = Utils.createTestNewTrainingDTO();
+        postNewTrainingDTOAndCheckIt(newTrainingDTO);
+    }
+
+    private void postNewTrainingDTOAndCheckIt(NewTrainingDTO newTrainingDTO) throws Exception {
+        String data = Utils.postResultActionsWithTokenAndBody(mockMvc,
+                        "/trainer/training/new",
+                        trainerToken,
+                        objectMapper,
+                        newTrainingDTO)
+                .andExpect(status().is(200))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertTrue(data.contains("" + newTrainingDTO.getDescription()));
+
+        boolean result = false;
+        for (Training training : trainingsService.findAll()) {
+            if (training.getName().equals(newTrainingDTO.getName())) {
+                if (training.getTrainer().getId() == trainer.getId()) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        assertTrue(result);
+    }
+
+    @Test
+    void putEditeTraining() throws Exception {
+        Training training = trainingsService.findAll().get(0);
+        TrainingDTO trainingDTO = modelMapperUtil.convertToTrainingDTO(training);
+        postEditeTrainingDTOThenCheckIt(trainingDTO);
+    }
+
+    private void postEditeTrainingDTOThenCheckIt(TrainingDTO trainingDTO) throws Exception {
+        String name = "newTrainingName";
+        trainingDTO.setName(name);
+        Utils.putResultActionsWithTokenAndBody(mockMvc,
+                        "/trainer/training/edite",
+                        trainerToken,
+                        objectMapper,
+                        trainingDTO)
+                .andExpect(status().is(204));
+
+        boolean result = false;
+        for (Training training : trainingsService.findAll()) {
+            if (training.getName().equals(name)) {
+                if (training.getTrainer().getId() == trainer.getId()) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        assertTrue(result);
     }
 }
